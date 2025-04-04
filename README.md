@@ -87,7 +87,6 @@ API calls are handled asynchronously with proper error handling and logging to e
 
 - Save stories for offline reading
 - Share stories with others
-- Text-to-speech narration
 - More customization options for story generation
 - Enhanced image generation options (style, aspect ratio, etc.)
 - Multiple illustrations per story

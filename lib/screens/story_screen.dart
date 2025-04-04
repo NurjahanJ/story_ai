@@ -3,6 +3,7 @@ import '../models/story.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../utils/logger.dart';
+import '../utils/speech_service.dart';
 import 'dart:io';
 import 'dart:convert';
 
@@ -19,6 +20,23 @@ class StoryScreen extends StatefulWidget {
 }
 
 class _StoryScreenState extends State<StoryScreen> {
+  // Speech service for text-to-speech functionality
+  final SpeechService _speechService = SpeechService();
+  bool _isNarrating = false;
+  
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the speech service
+    _speechService.initialize();
+  }
+  
+  @override
+  void dispose() {
+    // Dispose the speech service
+    _speechService.dispose();
+    super.dispose();
+  }
   
   /// Builds the appropriate image widget based on available image sources
   Widget _buildImageWidget() {
@@ -144,6 +162,14 @@ class _StoryScreenState extends State<StoryScreen> {
         title: Text(widget.story.title),
         centerTitle: true,
         actions: [
+          // Narration button
+          IconButton(
+            icon: Icon(_isNarrating ? Icons.stop : Icons.volume_up),
+            tooltip: _isNarrating ? 'Stop narration' : 'Read aloud',
+            onPressed: () {
+              _toggleNarration();
+            },
+          ),
           // Share button
           IconButton(
             icon: const Icon(Icons.share),
@@ -202,13 +228,64 @@ class _StoryScreenState extends State<StoryScreen> {
           ),
         ),
       ),
-      // Floating action button to return to home
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        child: const Icon(Icons.home),
+      // Floating action buttons
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Narration control button
+          FloatingActionButton(
+            heroTag: 'narrationButton',
+            onPressed: _toggleNarration,
+            backgroundColor: _isNarrating ? Colors.red : Theme.of(context).colorScheme.secondary,
+            mini: true,
+            child: Icon(_isNarrating ? Icons.stop : Icons.volume_up),
+          ),
+          const SizedBox(height: 16),
+          // Home button
+          FloatingActionButton(
+            heroTag: 'homeButton',
+            onPressed: () {
+              // Stop narration if active before navigating
+              if (_isNarrating) {
+                _speechService.stop();
+              }
+              Navigator.pop(context);
+            },
+            child: const Icon(Icons.home),
+          ),
+        ],
       ),
     );
+  }
+  
+  /// Toggle narration on/off
+  void _toggleNarration() async {
+    if (_isNarrating) {
+      // Stop narration
+      await _speechService.stop();
+      setState(() {
+        _isNarrating = false;
+      });
+      AppLogger.i('Narration stopped');
+    } else {
+      // Start narration
+      AppLogger.i('Starting narration of story: ${widget.story.title}');
+      
+      // Prepare the text to be narrated
+      final String narrateText = '${widget.story.title}. ${widget.story.content}';
+      
+      // Start narration
+      final bool success = await _speechService.speak(narrateText);
+      
+      setState(() {
+        _isNarrating = success;
+      });
+      
+      if (!success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to start narration')),
+        );
+      }
+    }
   }
 }

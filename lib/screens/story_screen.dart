@@ -28,7 +28,7 @@ class _StoryScreenState extends State<StoryScreen> {
         final imageBytes = base64Decode(widget.story.imageBase64!);
         return Image.memory(
           imageBytes,
-          fit: BoxFit.cover,
+          fit: BoxFit.contain, // Changed from cover to contain to show the full image
           errorBuilder: (context, error, stackTrace) {
             AppLogger.e('Error loading base64 image: $error');
             return _buildFallbackImage();
@@ -46,7 +46,7 @@ class _StoryScreenState extends State<StoryScreen> {
         final file = File(widget.story.localImagePath!);
         return Image.file(
           file,
-          fit: BoxFit.cover,
+          fit: BoxFit.contain, // Changed from cover to contain to show the full image
           errorBuilder: (context, error, stackTrace) {
             AppLogger.e('Error loading local image: $error');
             // Fall back to network image if local file fails
@@ -92,7 +92,7 @@ class _StoryScreenState extends State<StoryScreen> {
   Widget _buildNetworkImage() {
     return CachedNetworkImage(
       imageUrl: widget.story.imageUrl!,
-      fit: BoxFit.cover,
+      fit: BoxFit.contain, // Changed from cover to contain to show the full image
       placeholder: (context, url) => Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -171,16 +171,19 @@ class _StoryScreenState extends State<StoryScreen> {
               const SizedBox(height: 24),
               
               // Story image (if available)
-              if (widget.story.localImagePath != null || widget.story.imageUrl != null)
+              if (widget.story.imageBase64 != null || widget.story.localImagePath != null || widget.story.imageUrl != null)
                 Container(
                   width: double.infinity,
-                  height: 250,
+                  constraints: const BoxConstraints(
+                    minHeight: 200,
+                    maxHeight: 400, // Allow more height for taller images
+                  ),
                   margin: const EdgeInsets.only(bottom: 24),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withAlpha(51), // 0.2 opacity equals approximately 51 in alpha
+                        color: Colors.black.withAlpha(51),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),

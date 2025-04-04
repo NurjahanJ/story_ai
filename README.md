@@ -14,7 +14,7 @@ An immersive, interactive storytelling app powered by AI. This Flutter applicati
 
 ![image](https://github.com/user-attachments/assets/cc4f8c86-3d78-40fa-8fc8-79959c8f6146)
 
-![image](https://github.com/user-attachments/assets/bac56446-e517-4357-9822-699ae05b7168)
+![image](https://github.com/user-attachments/assets/3f0583f5-af00-47e3-b0a7-fcf259538577)
 
 
 ## Getting Started

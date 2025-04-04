@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import '../models/story.dart';
 import 'dart:math';
 import '../utils/logger.dart';
+import '../utils/image_downloader.dart';
 
 class OpenAIService {
   static const String _baseUrl = 'https://api.openai.com/v1';
@@ -127,61 +128,80 @@ class OpenAIService {
     }
   }
 
-  // Generate an image using DALL-E 3
-  Future<String> generateImage(String prompt) async {
+  // Generate an image using DALL-E 2 with base64 encoding
+  Future<Story> generateImageForStory(Story story) async {
     try {
-      // Create a more detailed prompt for the image
-      String enhancedPrompt = 'Create a high-quality, detailed illustration for a story with the following description: $prompt';
+      // Create a prompt based on the story title and content
+      final imagePrompt = '${story.title}: ${story.content.substring(0, min(100, story.content.length))}';
+      String enhancedPrompt = 'Create a high-quality, detailed illustration for a story with the following description: $imagePrompt';
       
       AppLogger.d('Generating image with prompt: $enhancedPrompt');
-      
-      // Use a fixed size for more reliable results
       AppLogger.d('Using image size: $_imageSize');
       
-      // Call the DALL-E API to generate an image
+      // Call the DALL-E API to generate an image with base64 encoding
       final response = await http.post(
         Uri.parse('$_baseUrl/images/generations'),
         headers: _headers,
         body: jsonEncode({
-          'model': 'dall-e-2', // Try DALL-E 2 which might be more reliable for some accounts
+          'model': 'dall-e-2', // Using DALL-E 2 for better reliability
           'prompt': enhancedPrompt,
           'n': 1,
           'size': _imageSize,
-          'response_format': 'url',
+          'response_format': 'b64_json', // Request base64 encoded image
         }),
       );
 
       AppLogger.d('DALL-E API response status: ${response.statusCode}');
-      AppLogger.d('DALL-E API response body: ${response.body}');
-
+      
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         
         // Check if the response contains the expected data structure
         if (data != null && data['data'] != null && data['data'].isNotEmpty) {
-          // Extract the image URL from the response
+          // Extract the base64 image data from the response
           final imageData = data['data'][0];
-          if (imageData.containsKey('url')) {
-            final imageUrl = imageData['url'];
-            AppLogger.i('Successfully generated image: $imageUrl');
-            return imageUrl;
-          } else if (imageData.containsKey('b64_json')) {
-            // Handle base64 encoded image if that's what was returned
-            AppLogger.w('Received base64 image instead of URL. This is not currently supported.');
-            throw Exception('Base64 image format not supported');
+          if (imageData.containsKey('b64_json')) {
+            final base64Image = imageData['b64_json'];
+            AppLogger.i('Successfully generated base64 image');
+            
+            // Create a data URL for compatibility with web platforms
+            final dataUrl = 'data:image/png;base64,$base64Image';
+            
+            try {
+              // Save the base64 image to local storage
+              final localPath = await ImageDownloader.saveBase64Image(base64Image);
+              AppLogger.i('Image saved locally at: $localPath');
+              
+              // Return the story with the base64 image data, data URL, and local path
+              return story.copyWith(
+                imageBase64: base64Image,
+                imageUrl: dataUrl,
+                localImagePath: localPath
+              );
+            } catch (e) {
+              AppLogger.e('Failed to save image locally: $e');
+              // If saving locally fails, still return the story with base64 and URL
+              return story.copyWith(
+                imageBase64: base64Image,
+                imageUrl: dataUrl
+              );
+            }
+          } else {
+            AppLogger.e('No base64 image data found in response');
+            return story; // Return original story without image
           }
         }
         
         // If we got here, the response format was unexpected
-        AppLogger.e('Invalid response format from DALL-E API: $data');
-        throw Exception('Invalid response format from DALL-E API');
+        AppLogger.e('Invalid response format from DALL-E API');
+        return story; // Return original story without image
       } else {
         AppLogger.e('Failed to generate image: ${response.statusCode} ${response.body}');
-        throw Exception('Failed to generate image: ${response.statusCode}');
+        return story; // Return original story without image
       }
     } catch (e) {
       AppLogger.e('Error generating image: $e');
-      throw Exception('Error generating image: $e');
+      return story; // Return original story without image
     }
   }
 
@@ -191,16 +211,9 @@ class OpenAIService {
     final story = await generateStory(prompt, genre: genre);
     
     try {
-      // Then generate an image based on the story title and content
-      final imagePrompt = '${story.title}: ${story.content.substring(0, min(100, story.content.length))}';
-      final imageUrl = await generateImage(imagePrompt);
-      
-      // Return a new story object with the image URL
-      return Story(
-        title: story.title,
-        content: story.content,
-        imageUrl: imageUrl,
-      );
+      // Generate an image for the story
+      final storyWithImage = await generateImageForStory(story);
+      return storyWithImage;
     } catch (e) {
       // If image generation fails, return the story without an image
       AppLogger.w('Failed to generate image, returning story without image: $e');

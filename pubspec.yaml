@@ -64,6 +64,9 @@ dependencies:
   
   # Advanced HTTP client
   dio: ^5.4.0
+  
+  # Cryptographic functions
+  crypto: ^3.0.3
 
 dev_dependencies:
   flutter_test:

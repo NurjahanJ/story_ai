@@ -9,6 +9,32 @@ import 'logger.dart';
 class ImageDownloader {
   static final Dio _dio = Dio();
   
+  /// Saves a base64-encoded image to local storage
+  /// Returns the path to the saved file
+  static Future<String> saveBase64Image(String base64String, {String? customName}) async {
+    try {
+      // Generate a unique filename
+      final String filename = customName ?? 'dalle_image_${DateTime.now().millisecondsSinceEpoch}.png';
+      
+      // Get the temporary directory
+      final Directory tempDir = await getTemporaryDirectory();
+      final String filePath = '${tempDir.path}/$filename';
+      
+      // Decode the base64 string to bytes
+      final List<int> bytes = base64Decode(base64String);
+      
+      // Save the image to a file
+      final File file = File(filePath);
+      await file.writeAsBytes(bytes);
+      AppLogger.i('Base64 image saved to: $filePath');
+      
+      return filePath;
+    } catch (e) {
+      AppLogger.e('Error saving base64 image: $e');
+      rethrow;
+    }
+  }
+  
   /// Downloads an image from a URL and saves it to local storage
   /// Returns the path to the saved file
   static Future<String> downloadImage(String imageUrl) async {

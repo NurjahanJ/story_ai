@@ -11,7 +11,10 @@ An immersive, interactive storytelling app powered by AI. This Flutter applicati
 
 ## Screenshots
 
-*Screenshots will be added once the app is running*
+![image](https://github.com/user-attachments/assets/cc4f8c86-3d78-40fa-8fc8-79959c8f6146)
+
+![image](https://github.com/user-attachments/assets/bac56446-e517-4357-9822-699ae05b7168)
+
 
 ## Getting Started
 
@@ -77,11 +80,3 @@ API calls are handled asynchronously with proper error handling to ensure a smoo
 - More customization options for story generation
 - Add illustration capabilities
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgements
-
-- OpenAI for providing the APIs
-- Flutter team for the amazing framework

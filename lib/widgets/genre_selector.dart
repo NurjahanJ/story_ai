@@ -6,11 +6,11 @@ class GenreSelector extends StatelessWidget {
   final Function(String?) onGenreSelected;
 
   const GenreSelector({
-    Key? key,
+    super.key,
     required this.genres,
     required this.selectedGenre,
     required this.onGenreSelected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +49,7 @@ class GenreSelector extends StatelessWidget {
                   }
                 },
               );
-            }).toList(),
+            }),
           ],
         ),
       ],

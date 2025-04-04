@@ -1,13 +1,14 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'logger.dart';
 
 class EnvLoader {
   // Initialize environment variables
   static Future<void> load() async {
     try {
       await dotenv.load();
-      print('Environment variables loaded successfully');
+      AppLogger.i('Environment variables loaded successfully');
     } catch (e) {
-      print('Error loading environment variables: $e');
+      AppLogger.e('Error loading environment variables: $e');
     }
   }
   

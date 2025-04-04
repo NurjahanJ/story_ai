@@ -5,9 +5,9 @@ class ChapterCard extends StatelessWidget {
   final Chapter chapter;
 
   const ChapterCard({
-    Key? key,
+    super.key,
     required this.chapter,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

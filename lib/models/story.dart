@@ -1,16 +1,19 @@
 class Story {
   final String title;
   final String content;
+  final String? imageUrl;
 
   Story({
     required this.title,
     required this.content,
+    this.imageUrl,
   });
 
   factory Story.fromJson(Map<String, dynamic> json) {
     // Handle different possible JSON structures
     String title = 'Untitled Story';
     String content = '';
+    String? imageUrl;
     
     // Try to get title
     if (json.containsKey('title')) {
@@ -28,9 +31,15 @@ class Story {
       content = json['story'] ?? '';
     }
     
+    // Try to get imageUrl if available
+    if (json.containsKey('imageUrl')) {
+      imageUrl = json['imageUrl'];
+    }
+    
     return Story(
       title: title,
       content: content,
+      imageUrl: imageUrl,
     );
   }
 
@@ -38,6 +47,7 @@ class Story {
     return {
       'title': title,
       'content': content,
+      if (imageUrl != null) 'imageUrl': imageUrl,
     };
   }
 }

@@ -46,6 +46,24 @@ dependencies:
   
   # Local storage for saving preferences
   shared_preferences: ^2.2.2
+  
+  # Image loading and caching
+  cached_network_image: ^3.3.1
+  
+  # Loading animations
+  loading_animation_widget: ^1.2.0+4
+  
+  # Markdown rendering for story text
+  flutter_markdown: ^0.6.18+3
+  
+  # Logging
+  logger: ^2.0.2+1
+  
+  # File handling
+  path_provider: ^2.1.2
+  
+  # Advanced HTTP client
+  dio: ^5.4.0
 
 dev_dependencies:
   flutter_test:

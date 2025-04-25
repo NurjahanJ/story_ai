@@ -141,7 +141,7 @@ class GenreSelector extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
-          color: isSelected ? Colors.transparent : color.withOpacity(0.5),
+          color: isSelected ? Colors.transparent : color.withAlpha(128), // 128 is approximately 0.5 opacity (0-255 scale)
           width: 1,
         ),
       ),

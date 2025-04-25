@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -219,7 +219,7 @@ class _StoryScreenState extends State<StoryScreen> with SingleTickerProviderStat
                   end: Alignment.bottomCenter,
                   colors: [
                     AppTheme.backgroundColor,
-                    AppTheme.backgroundColor.withOpacity(0.9),
+                    AppTheme.backgroundColor.withAlpha(230), // 0.9 opacity converted to alpha (0.9 * 255 = 230)
                   ],
                 ),
               ),
@@ -293,7 +293,7 @@ class _StoryScreenState extends State<StoryScreen> with SingleTickerProviderStat
                                       Shadow(
                                         offset: const Offset(1, 1),
                                         blurRadius: 3,
-                                        color: Colors.black.withOpacity(0.7),
+                                        color: Colors.black.withAlpha(179), // 0.7 opacity converted to alpha (0.7 * 255 = 179)
                                       ),
                                     ],
                                   ),
@@ -326,7 +326,7 @@ class _StoryScreenState extends State<StoryScreen> with SingleTickerProviderStat
                         : BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withAlpha(26), // 0.1 opacity converted to alpha (0.1 * 255 = 26)
                           blurRadius: 10,
                           offset: const Offset(0, -2),
                         ),
@@ -352,7 +352,7 @@ class _StoryScreenState extends State<StoryScreen> with SingleTickerProviderStat
                             child: SizedBox(
                               width: 100,
                               child: Divider(
-                                color: AppTheme.secondaryColor.withOpacity(0.5),
+                                color: AppTheme.secondaryColor.withAlpha(128), // 0.5 opacity converted to alpha (0.5 * 255 = 128)
                                 thickness: 2,
                               ),
                             ),
@@ -369,7 +369,7 @@ class _StoryScreenState extends State<StoryScreen> with SingleTickerProviderStat
                         Center(
                           child: Icon(
                             Icons.explore,
-                            color: AppTheme.secondaryColor.withOpacity(0.5),
+                            color: AppTheme.secondaryColor.withAlpha(128), // 0.5 opacity converted to alpha (0.5 * 255 = 128)
                             size: 32,
                           ),
                         ),

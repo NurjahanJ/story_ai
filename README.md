@@ -52,7 +52,6 @@ lib/
 │   └── story_screen.dart   # Story display screen with image rendering
 ├── services/           # API services
 │   └── openai_service.dart # OpenAI API integration (GPT & DALL-E)
-│   └── playht_service.dart # Play.ht API integration for narration
 ├── utils/              # Utility classes
 │   ├── app_theme.dart      # App theming
 │   ├── env_loader.dart     # Environment variable loader

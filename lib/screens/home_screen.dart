@@ -123,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('STORY EXPLORER'),
         centerTitle: true,
-        backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+        backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(204), // 0.8 opacity converted to alpha (0.8 * 255 = 204)
         elevation: 0,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
@@ -144,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
           BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
             child: Container(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withAlpha(77), // 0.3 opacity converted to alpha (0.3 * 255 = 77)
               width: double.infinity,
               height: double.infinity,
             ),
@@ -162,11 +162,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface.withOpacity(0.8),
+                      color: Theme.of(context).colorScheme.surface.withAlpha(204), // 0.8 opacity converted to alpha (0.8 * 255 = 204)
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
+                          color: Colors.black.withAlpha(77), // 0.3 opacity converted to alpha (0.3 * 255 = 77)
                           blurRadius: 15,
                           offset: const Offset(0, 5),
                         ),
@@ -185,17 +185,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface.withOpacity(0.85),
+                      color: Theme.of(context).colorScheme.surface.withAlpha(217), // 0.85 opacity,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
+                          color: Colors.black.withAlpha(51), // 0.2 opacity,
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
                       ],
                       border: Border.all(
-                        color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                        color: Theme.of(context).colorScheme.secondary.withAlpha(77), // 0.3 opacity,
                         width: 1,
                       ),
                     ),
@@ -225,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.error.withOpacity(0.1),
+                              color: Theme.of(context).colorScheme.error.withAlpha(26), // 0.1 opacity converted to alpha (0.1 * 255 = 26)
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(color: Theme.of(context).colorScheme.error),
                             ),
@@ -276,17 +276,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface.withOpacity(0.85),
+                      color: Theme.of(context).colorScheme.surface.withAlpha(217), // 0.85 opacity,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
+                          color: Colors.black.withAlpha(51), // 0.2 opacity,
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
                       ],
                       border: Border.all(
-                        color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                        color: Theme.of(context).colorScheme.secondary.withAlpha(77), // 0.3 opacity,
                         width: 1,
                       ),
                     ),
@@ -329,7 +329,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
+                          color: Theme.of(context).colorScheme.primary.withAlpha(102), // 0.4 opacity converted to alpha (0.4 * 255 = 102)
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
@@ -374,10 +374,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface.withOpacity(0.7),
+                      color: Theme.of(context).colorScheme.surface.withAlpha(179), // 0.7 opacity converted to alpha (0.7 * 255 = 179)
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                        color: Theme.of(context).colorScheme.secondary.withAlpha(77), // 0.3 opacity,
                       ),
                     ),
                     child: Column(

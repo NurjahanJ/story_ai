@@ -30,12 +30,12 @@ class AppTheme {
       secondary: secondaryColor,
       tertiary: tertiaryColor,
       surface: cardColor,
-      background: backgroundColor,
+      // Using surface instead of deprecated background
       error: errorColor,
       onPrimary: Colors.white,
       onSecondary: Colors.white,
       onSurface: textPrimaryColor,
-      onBackground: textPrimaryColor,
+      // onBackground is deprecated, using onSurface above
       onError: Colors.white,
       brightness: Brightness.light,
     ),
@@ -45,7 +45,7 @@ class AppTheme {
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: secondaryColor.withOpacity(0.3), width: 1),
+        side: BorderSide(color: secondaryColor.withAlpha(77), width: 1), // 0.3 opacity converted to alpha (0.3 * 255 = 77)
       ),
       margin: const EdgeInsets.all(12.0),
     ),
@@ -53,7 +53,7 @@ class AppTheme {
       backgroundColor: primaryColor,
       foregroundColor: Colors.white,
       elevation: 2,
-      shadowColor: secondaryColor.withOpacity(0.5),
+      shadowColor: secondaryColor.withAlpha(128), // 0.5 opacity converted to alpha (0.5 * 255 = 128)
       titleTextStyle: const TextStyle(
         fontFamily: 'Adventure',
         fontSize: 24,
@@ -68,7 +68,7 @@ class AppTheme {
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         elevation: 3,
-        shadowColor: secondaryColor.withOpacity(0.5),
+        shadowColor: secondaryColor.withAlpha(128), // 0.5 opacity converted to alpha (0.5 * 255 = 128)
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
@@ -84,11 +84,11 @@ class AppTheme {
       fillColor: cardColor,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: secondaryColor.withOpacity(0.5)),
+        borderSide: BorderSide(color: secondaryColor.withAlpha(128)), // 0.5 opacity converted to alpha (0.5 * 255 = 128)
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: secondaryColor.withOpacity(0.5)),
+        borderSide: BorderSide(color: secondaryColor.withAlpha(128)), // 0.5 opacity converted to alpha (0.5 * 255 = 128)
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
@@ -96,7 +96,7 @@ class AppTheme {
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       labelStyle: TextStyle(color: textSecondaryColor),
-      hintStyle: TextStyle(color: textSecondaryColor.withOpacity(0.7)),
+      hintStyle: TextStyle(color: textSecondaryColor.withAlpha(179)), // 0.7 opacity converted to alpha (0.7 * 255 = 179)
       prefixIconColor: secondaryColor,
     ),
     textTheme: const TextTheme(
@@ -149,12 +149,12 @@ class AppTheme {
       secondary: const Color(0xFFBCAAA4),       // Light Earthy Brown
       tertiary: const Color(0xFF90A4AE),        // Light Blue Grey
       surface: const Color(0xFF263238),         // Deep Blue-Grey
-      background: const Color(0xFF1A2327),      // Dark Night Sky
+      // Using surface instead of deprecated background
       error: const Color(0xFFFF8A65),           // Soft Error Orange
       onPrimary: const Color(0xFF1A2327),       // Dark Text on Primary
       onSecondary: const Color(0xFF1A2327),     // Dark Text on Secondary
       onSurface: Colors.white,                  // White Text on Surface
-      onBackground: Colors.white,               // White Text on Background
+      // onBackground is deprecated, using onSurface above
       onError: Colors.white,                    // White Text on Error
       brightness: Brightness.dark,
     ),
@@ -164,15 +164,15 @@ class AppTheme {
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: Color(0xFF455A64), width: 1),
+        side: BorderSide(color: Color(0xFF455A64).withAlpha(77), width: 1), // 0.3 opacity converted to alpha (0.3 * 255 = 77)
       ),
       margin: const EdgeInsets.all(12.0),
     ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xFF1B5E20),        // Dark Forest Green
+    appBarTheme: AppBarTheme(
+      backgroundColor: const Color(0xFF1B5E20),        // Dark Forest Green
       foregroundColor: Colors.white,
       elevation: 2,
-      shadowColor: Color(0xFF000000),
+      shadowColor: const Color(0xFF000000),
       titleTextStyle: TextStyle(
         fontFamily: 'Adventure',
         fontSize: 24,

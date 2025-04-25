@@ -68,7 +68,7 @@ class OpenAIService {
           'messages': [
             {
               'role': 'system',
-              'content': 'You are a creative storyteller. Create a short story as a single continuous narrative. Your response MUST be valid JSON with EXACTLY this structure: {"title": "Story Title", "content": "The full story content"}. Do not include any markdown formatting, code blocks, or explanations outside the JSON. Make the story about 3-5 paragraphs long. Ensure all quotes in the content are properly escaped.'
+              'content': 'You are a creative storyteller. Write a short story (3-5 paragraphs) and ALWAYS give it a unique, relevant title. Your response MUST be valid JSON with EXACTLY this structure: {"title": "Story Title", "content": "The full story content"}. Do NOT use the title "Generated Story". Do not include any markdown formatting, code blocks, or explanations outside the JSON. Only reply with the JSON object. Ensure all quotes in the content are properly escaped.'
             },
             {
               'role': 'user',
@@ -101,12 +101,13 @@ class OpenAIService {
             String title = 'Generated Story';
             String storyContent = content;
             
-            // Try to extract a title if the content starts with something that looks like a title
+            // Try to extract a unique title if the content starts with something that looks like a title
             final contentLines = content.split('\n');
             if (contentLines.isNotEmpty && contentLines[0].trim().isNotEmpty) {
-              // Use the first line as title if it's short enough
-              if (contentLines[0].length < 100) {
-                title = contentLines[0].trim();
+              final firstLine = contentLines[0].trim();
+              // Use the first line as title if it's not 'Generated Story' and is reasonably short
+              if (firstLine.length < 100 && firstLine.toLowerCase() != 'generated story') {
+                title = firstLine;
                 // Remove the title from the content
                 storyContent = contentLines.skip(1).join('\n').trim();
               }

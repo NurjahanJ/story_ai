@@ -68,6 +68,15 @@ dependencies:
   
   # Cryptographic functions
   crypto: ^3.0.3
+  
+  # Audio playback
+  just_audio: ^0.9.36
+  
+  # Audio session management
+  audio_session: ^0.1.18
+  
+  # Audio player UI
+  audio_video_progress_bar: ^2.0.1
 
 dev_dependencies:
   flutter_test:

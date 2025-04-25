@@ -3,6 +3,7 @@ import '../services/openai_service.dart';
 import '../utils/env_loader.dart';
 import 'story_screen.dart';
 import '../widgets/genre_selector.dart';
+import 'dart:ui';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,19 +17,29 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _selectedGenre;
   bool _isLoading = false;
   String? _errorMessage;
+  final ScrollController _scrollController = ScrollController();
   
-  // List of available genres
+  // List of available genres with explorer-themed descriptions
   final List<String> _genres = [
     'Fantasy',
     'Science Fiction',
     'Mystery',
-    'Romance',
-    'Horror',
     'Adventure',
     'Historical Fiction',
-    'Thriller',
-    'Comedy',
-    'Drama',
+    'Folklore',
+    'Mythology',
+    'Expedition',
+    'Wilderness',
+    'Discovery',
+  ];
+  
+  // Explorer-themed prompts for inspiration
+  final List<String> _promptSuggestions = [
+    'A hidden temple deep in the uncharted jungle...',
+    'Discovering an ancient map leading to a forgotten civilization...',
+    'A journey across treacherous mountains to find a legendary artifact...',
+    'Explorers who stumble upon a mysterious island not on any map...',
+    'An expedition to the depths of the ocean reveals an unexpected discovery...',
   ];
 
   @override
@@ -101,133 +112,301 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _promptController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('AI Storyteller'),
+        title: const Text('STORY EXPLORER'),
         centerTitle: true,
+        backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+        elevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
+        ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // App logo or icon
-              const Icon(
-                Icons.auto_stories,
-                size: 80,
-                color: Colors.deepPurple,
+      body: Stack(
+        children: [
+          // Background image with parallax effect
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/explorer_bg.jpg'),
+                fit: BoxFit.cover,
               ),
-              
-              const SizedBox(height: 16),
-              
-              // App title and description
-              Text(
-                'AI Storyteller',
-                style: Theme.of(context).textTheme.displayMedium,
-                textAlign: TextAlign.center,
-              ),
-              
-              const SizedBox(height: 8),
-              
-              Text(
-                'Create immersive stories with AI',
-                style: Theme.of(context).textTheme.bodyLarge,
-                textAlign: TextAlign.center,
-              ),
-              
-              const SizedBox(height: 32),
-              
-              // Error message if API key is not set
-              if (_errorMessage != null)
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade100,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.red),
+            ),
+          ),
+          // Blurred overlay for readability
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+            child: Container(
+              color: Colors.black.withOpacity(0.3),
+              width: double.infinity,
+              height: double.infinity,
+            ),
+          ),
+          // Main content
+          SingleChildScrollView(
+            controller: _scrollController,
+            physics: const BouncingScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 100.0, 16.0, 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // App logo - compass icon for explorer theme
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface.withOpacity(0.8),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.explore,
+                      size: 80,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
-                  child: Text(
-                    _errorMessage!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ),
-              
-              if (_errorMessage != null)
-                const SizedBox(height: 16),
-              
-              // Prompt input field
-              TextField(
-                controller: _promptController,
-                decoration: const InputDecoration(
-                  labelText: 'Enter your story prompt',
-                  hintText: 'e.g., A journey to a hidden underwater city',
-                  prefixIcon: Icon(Icons.edit),
-                ),
-                maxLines: 3,
-                textInputAction: TextInputAction.done,
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // Genre selector
-              GenreSelector(
-                genres: _genres,
-                selectedGenre: _selectedGenre,
-                onGenreSelected: (genre) {
-                  setState(() {
-                    _selectedGenre = genre;
-                  });
-                },
-              ),
-              
-              const SizedBox(height: 24),
-              
-              // Generate button
-              ElevatedButton(
-                onPressed: _isLoading ? null : _generateStory,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: _isLoading
-                    ? const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
+                  
+                  const SizedBox(height: 24),
+                  
+                  // App title and description with adventure styling
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface.withOpacity(0.85),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                        width: 1,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          'EMBARK ON A STORY ADVENTURE',
+                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        
+                        const SizedBox(height: 12),
+                        
+                        Text(
+                          'Discover uncharted tales crafted by AI',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                          textAlign: TextAlign.center,
+                        ),
+                        
+                        const SizedBox(height: 24),
+                        
+                        // Error message if API key is not set
+                        if (_errorMessage != null)
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.error.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Theme.of(context).colorScheme.error),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.warning_amber_rounded, 
+                                  color: Theme.of(context).colorScheme.error),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    _errorMessage!,
+                                    style: TextStyle(color: Theme.of(context).colorScheme.error),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          SizedBox(width: 12),
-                          Text('Creating your story...'),
-                        ],
-                      )
-                    : const Text('Generate Story'),
+                        
+                        if (_errorMessage != null)
+                          const SizedBox(height: 16),
+                        
+                        // Prompt input field with explorer styling
+                        TextField(
+                          controller: _promptController,
+                          decoration: InputDecoration(
+                            labelText: 'Chart Your Adventure',
+                            hintText: _promptSuggestions[DateTime.now().second % _promptSuggestions.length],
+                            prefixIcon: const Icon(Icons.edit_note_rounded),
+                            suffixIcon: IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () => _promptController.clear(),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary),
+                            ),
+                          ),
+                          maxLines: 3,
+                          textInputAction: TextInputAction.done,
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Genre selector with explorer theme
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface.withOpacity(0.85),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                        width: 1,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.map, color: Theme.of(context).colorScheme.secondary),
+                            const SizedBox(width: 8),
+                            Text(
+                              'CHOOSE YOUR PATH',
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        GenreSelector(
+                          genres: _genres,
+                          selectedGenre: _selectedGenre,
+                          onGenreSelected: (genre) {
+                            setState(() {
+                              _selectedGenre = genre;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Generate button with explorer styling
+                  Container(
+                    height: 60,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _generateStory,
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: _isLoading
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Theme.of(context).colorScheme.onPrimary,
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                const Text('CHARTING YOUR ADVENTURE...'),
+                              ],
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.auto_stories, size: 24, color: Theme.of(context).colorScheme.onPrimary),
+                                const SizedBox(width: 12),
+                                const Text('EMBARK ON ADVENTURE', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                              ],
+                            ),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Note about API usage with explorer styling
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.info_outline, 
+                              size: 16, 
+                              color: Theme.of(context).colorScheme.secondary),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'This expedition uses OpenAI\'s GPT API to generate content. You will need to provide your own API key in the .env file.',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.secondary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              
-              const SizedBox(height: 16),
-              
-              // Note about API usage
-              const Text(
-                'Note: This app uses OpenAI\'s GPT API to generate content. '
-                'You will need to provide your own API key in the .env file.',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

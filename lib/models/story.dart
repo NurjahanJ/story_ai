@@ -4,6 +4,8 @@ class Story {
   final String? imageUrl;
   final String? localImagePath;
   final String? imageBase64; // Base64-encoded image data
+  final String? audioUrl; // URL to the Play.ht generated narration
+  final NarrationStatus narrationStatus; // Status of narration generation
 
   Story({
     required this.title,
@@ -11,6 +13,8 @@ class Story {
     this.imageUrl,
     this.localImagePath,
     this.imageBase64,
+    this.audioUrl,
+    this.narrationStatus = NarrationStatus.none,
   });
   
   /// Creates a copy of this Story with the given fields replaced with the new values
@@ -20,6 +24,8 @@ class Story {
     String? imageUrl,
     String? localImagePath,
     String? imageBase64,
+    String? audioUrl,
+    NarrationStatus? narrationStatus,
   }) {
     return Story(
       title: title ?? this.title,
@@ -27,6 +33,8 @@ class Story {
       imageUrl: imageUrl ?? this.imageUrl,
       localImagePath: localImagePath ?? this.localImagePath,
       imageBase64: imageBase64 ?? this.imageBase64,
+      audioUrl: audioUrl ?? this.audioUrl,
+      narrationStatus: narrationStatus ?? this.narrationStatus,
     );
   }
 
@@ -37,6 +45,8 @@ class Story {
     String? imageUrl;
     String? localImagePath;
     String? imageBase64;
+    String? audioUrl;
+    NarrationStatus narrationStatus = NarrationStatus.none;
     
     // Try to get title
     if (json.containsKey('title')) {
@@ -69,12 +79,24 @@ class Story {
       imageBase64 = json['imageBase64'];
     }
     
+    // Try to get audioUrl if available
+    if (json.containsKey('audioUrl')) {
+      audioUrl = json['audioUrl'];
+    }
+    
+    // Try to get narrationStatus if available
+    if (json.containsKey('narrationStatus')) {
+      narrationStatus = _parseNarrationStatus(json['narrationStatus']);
+    }
+    
     return Story(
       title: title,
       content: content,
       imageUrl: imageUrl,
       localImagePath: localImagePath,
       imageBase64: imageBase64,
+      audioUrl: audioUrl,
+      narrationStatus: narrationStatus,
     );
   }
 
@@ -85,30 +107,33 @@ class Story {
       if (imageUrl != null) 'imageUrl': imageUrl,
       if (localImagePath != null) 'localImagePath': localImagePath,
       if (imageBase64 != null) 'imageBase64': imageBase64,
+      if (audioUrl != null) 'audioUrl': audioUrl,
+      'narrationStatus': narrationStatus.toString(),
     };
   }
 }
 
-class Chapter {
-  final String title;
-  final String content;
+/// Status of narration generation
+enum NarrationStatus {
+  none,       // No narration has been requested
+  generating, // Narration is being generated
+  ready,      // Narration is ready to play
+  failed      // Narration generation failed
+}
 
-  Chapter({
-    required this.title,
-    required this.content,
-  });
-
-  factory Chapter.fromJson(Map<String, dynamic> json) {
-    return Chapter(
-      title: json['title'] ?? 'Untitled Chapter',
-      content: json['content'] ?? '',
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'title': title,
-      'content': content,
-    };
+/// Parse narration status from string
+NarrationStatus _parseNarrationStatus(String? status) {
+  if (status == null) return NarrationStatus.none;
+  
+  switch (status) {
+    case 'NarrationStatus.generating':
+      return NarrationStatus.generating;
+    case 'NarrationStatus.ready':
+      return NarrationStatus.ready;
+    case 'NarrationStatus.failed':
+      return NarrationStatus.failed;
+    case 'NarrationStatus.none':
+    default:
+      return NarrationStatus.none;
   }
 }

@@ -74,6 +74,9 @@ dependencies:
   
   # Audio session management
   audio_session: ^0.1.18
+  
+  # Audio player UI
+  audio_video_progress_bar: ^2.0.1
 
 dev_dependencies:
   flutter_test:

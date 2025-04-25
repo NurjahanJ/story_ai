@@ -4,8 +4,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../utils/logger.dart';
 import '../utils/speech_service.dart';
+import '../services/playht_service.dart';
+import '../widgets/audio_player_widget.dart';
 import 'dart:io';
 import 'dart:convert';
+import 'dart:ui';
 
 class StoryScreen extends StatefulWidget {
   final Story story;
@@ -20,15 +23,22 @@ class StoryScreen extends StatefulWidget {
 }
 
 class _StoryScreenState extends State<StoryScreen> {
-  // Speech service for text-to-speech functionality
+  // Services
   final SpeechService _speechService = SpeechService();
+  final PlayHtService _playHtService = PlayHtService();
   bool _isNarrating = false;
+  
+  // Local copy of the story that can be updated
+  late Story _story;
   
   @override
   void initState() {
     super.initState();
     // Initialize the speech service
     _speechService.initialize();
+    
+    // Initialize the local story copy
+    _story = widget.story;
   }
   
   @override
@@ -158,9 +168,21 @@ class _StoryScreenState extends State<StoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(widget.story.title),
+        title: Text(
+          widget.story.title.toUpperCase(),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
         centerTitle: true,
+        backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+        elevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
+        ),
         actions: [
           // Narration button
           IconButton(
@@ -176,59 +198,225 @@ class _StoryScreenState extends State<StoryScreen> {
             onPressed: () {
               // TODO: Implement sharing functionality
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Sharing functionality coming soon!')),
+                SnackBar(
+                  content: const Text('Sharing functionality coming soon!'),
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                ),
               );
             },
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Story title
-              Text(
-                widget.story.title,
-                style: Theme.of(context).textTheme.headlineMedium,
+      body: Stack(
+        children: [
+          // Background with subtle pattern
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.background,
+              image: const DecorationImage(
+                image: AssetImage('assets/images/explorer_paper_bg.jpg'),
+                fit: BoxFit.cover,
+                opacity: 0.15,
               ),
-              
-              const SizedBox(height: 24),
-              
-              // Story image (if available)
-              if (widget.story.imageBase64 != null || widget.story.localImagePath != null || widget.story.imageUrl != null)
-                Container(
-                  width: double.infinity,
-                  constraints: const BoxConstraints(
-                    minHeight: 200,
-                    maxHeight: 400, // Allow more height for taller images
+            ),
+          ),
+          
+          // Main content
+          SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Story image with immersive design
+                if (widget.story.imageBase64 != null || widget.story.localImagePath != null || widget.story.imageUrl != null)
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.5,
+                    child: Stack(
+                      children: [
+                        // Image
+                        SizedBox(
+                          width: double.infinity,
+                          height: double.infinity,
+                          child: _buildImageWidget(),
+                        ),
+                        // Gradient overlay for better text visibility
+                        Positioned(
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          height: 150,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black.withOpacity(0.8),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        // Title overlay
+                        Positioned(
+                          bottom: 20,
+                          left: 20,
+                          right: 20,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Story title with explorer styling
+                              Text(
+                                widget.story.title,
+                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  shadows: [
+                                    Shadow(
+                                      offset: const Offset(1, 1),
+                                      blurRadius: 3,
+                                      color: Colors.black.withOpacity(0.5),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  margin: const EdgeInsets.only(bottom: 24),
+                
+                // Story content with explorer styling
+                Container(
+                  padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(51),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: widget.story.imageBase64 != null || widget.story.localImagePath != null || widget.story.imageUrl != null
+                      ? const BorderRadius.vertical(top: Radius.circular(32))
+                      : null,
+                    boxShadow: widget.story.imageBase64 != null || widget.story.localImagePath != null || widget.story.imageUrl != null
+                      ? [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: const Offset(0, -5),
+                          ),
+                        ]
+                      : null,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Show title only if no image is available
+                      if (widget.story.imageBase64 == null && widget.story.localImagePath == null && widget.story.imageUrl == null) ...[                        
+                        Text(
+                          widget.story.title,
+                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+                      
+                      // Story content with styled text
+                      Text(
+                        widget.story.content,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          height: 1.7,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 32),
+                      
+                      // Narration section with explorer styling
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Section title
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.record_voice_over,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'STORY NARRATION',
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.0,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            
+                            const SizedBox(height: 16),
+                            
+                            // Narration button - show only if narration is not ready
+                            if (_story.narrationStatus != NarrationStatus.ready)
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  onPressed: _story.narrationStatus == NarrationStatus.generating ? null : _generateNarration,
+                                  icon: _story.narrationStatus == NarrationStatus.generating 
+                                    ? const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(strokeWidth: 2),
+                                      )
+                                    : const Icon(Icons.record_voice_over),
+                                  label: Text(_getButtonLabel()),
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  ),
+                                ),
+                              ),
+                            
+                            // Audio player - show only if narration is ready
+                            if (_story.narrationStatus == NarrationStatus.ready && _story.audioUrl != null) ...[  
+                              const Text(
+                                'Listen to the tale unfold through narration:',
+                                style: TextStyle(fontStyle: FontStyle.italic),
+                              ),
+                              const SizedBox(height: 16),
+                              AudioPlayerWidget(audioUrl: _story.audioUrl!),
+                            ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                  clipBehavior: Clip.antiAlias,
-                  child: _buildImageWidget(),
                 ),
-              
-              // Story content
-              Text(
-                widget.story.content,
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+        ],
       ),
-      // Floating action buttons
+      // Floating action buttons with explorer styling
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -236,8 +424,11 @@ class _StoryScreenState extends State<StoryScreen> {
           FloatingActionButton(
             heroTag: 'narrationButton',
             onPressed: _toggleNarration,
-            backgroundColor: _isNarrating ? Colors.red : Theme.of(context).colorScheme.secondary,
+            backgroundColor: _isNarrating 
+                ? Theme.of(context).colorScheme.error 
+                : Theme.of(context).colorScheme.secondary,
             mini: true,
+            elevation: 4,
             child: Icon(_isNarrating ? Icons.stop : Icons.volume_up),
           ),
           const SizedBox(height: 16),
@@ -251,11 +442,75 @@ class _StoryScreenState extends State<StoryScreen> {
               }
               Navigator.pop(context);
             },
-            child: const Icon(Icons.home),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            elevation: 4,
+            child: const Icon(Icons.explore),
           ),
         ],
       ),
     );
+  }
+  
+  /// Generate narration using Play.ht API
+  Future<void> _generateNarration() async {
+    // Update state to show loading
+    setState(() {
+      _story = _story.copyWith(narrationStatus: NarrationStatus.generating);
+    });
+    
+    try {
+      // Prepare the text to be narrated
+      final String narrateText = '${_story.title}. ${_story.content}';
+      
+      // Generate speech using Play.ht API
+      final audioUrl = await _playHtService.generateSpeech(text: narrateText);
+      
+      if (audioUrl != null) {
+        // Update the story with the audio URL
+        setState(() {
+          _story = _story.copyWith(
+            audioUrl: audioUrl,
+            narrationStatus: NarrationStatus.ready,
+          );
+        });
+        
+        AppLogger.i('Narration generated successfully: $audioUrl');
+      } else {
+        // Handle error
+        setState(() {
+          _story = _story.copyWith(narrationStatus: NarrationStatus.failed);
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to generate narration')),
+        );
+      }
+    } catch (e) {
+      // Handle exception
+      AppLogger.e('Error generating narration: $e');
+      
+      setState(() {
+        _story = _story.copyWith(narrationStatus: NarrationStatus.failed);
+      });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error generating narration: $e')),
+      );
+    }
+  }
+  
+  /// Get the appropriate button label based on narration status
+  String _getButtonLabel() {
+    switch (_story.narrationStatus) {
+      case NarrationStatus.generating:
+        return 'Generating Narration...';
+      case NarrationStatus.ready:
+        return 'Regenerate Narration';
+      case NarrationStatus.failed:
+        return 'Retry Narration';
+      case NarrationStatus.none:
+        return 'Generate Narration';
+    }
   }
   
   /// Toggle narration on/off

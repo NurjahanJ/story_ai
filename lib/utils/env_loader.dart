@@ -12,9 +12,19 @@ class EnvLoader {
     }
   }
   
-  // Check if API key is set
+  // Check if OpenAI API key is set
   static bool isApiKeySet() {
     final apiKey = dotenv.env['OPENAI_API_KEY'];
     return apiKey != null && apiKey.isNotEmpty && apiKey != 'your_openai_api_key_here';
+  }
+  
+  // Check if Play.ht API key is set
+  static bool isPlayHtApiKeySet() {
+    final apiKey = dotenv.env['PLAYHT_API_KEY'];
+    final isSet = apiKey != null && apiKey.isNotEmpty && apiKey != 'your_playht_api_key_here';
+    if (!isSet) {
+      AppLogger.w('Play.ht API key is not properly set in .env file');
+    }
+    return isSet;
   }
 }

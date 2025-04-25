@@ -89,26 +89,4 @@ class Story {
   }
 }
 
-class Chapter {
-  final String title;
-  final String content;
 
-  Chapter({
-    required this.title,
-    required this.content,
-  });
-
-  factory Chapter.fromJson(Map<String, dynamic> json) {
-    return Chapter(
-      title: json['title'] ?? 'Untitled Chapter',
-      content: json['content'] ?? '',
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'title': title,
-      'content': content,
-    };
-  }
-}

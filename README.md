@@ -36,7 +36,7 @@ An immersive, interactive storytelling app powered by AI, designed with the Expl
 4. Update the `.env` file with your API keys:
    ```
    OPENAI_API_KEY=your_openai_api_key_here
-   PLAYHT_API_KEY=your_playht_api_key_here
+   
    ```
 5. Run the app with `flutter run`
 

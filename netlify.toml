@@ -1,0 +1,8 @@
+[build]
+  publish = "build/web"
+  command = "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash && export NVM_DIR=\"$HOME/.nvm\" && [ -s \"$NVM_DIR/nvm.sh\" ] && \\. \"$NVM_DIR/nvm.sh\" && nvm install 16 && npm install -g flutter_sdk && flutter build web"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
